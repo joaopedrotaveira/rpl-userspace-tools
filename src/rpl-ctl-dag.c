@@ -34,13 +34,13 @@
 
 static rpl_ctl_res_t list_dag_parse(struct rpl_ctl_cmd *cmd)
 {
-	if (cmd->argc > 2) {
+	if (cmd->argc > 3) {
 		printf("Incorrect number of arguments!\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
 	/* rpl_ctl list 2001:0b18:2000:8221::1 */
-	if (cmd->argc == 2) {
+	if (cmd->argc == 3) {
 		cmd->dodagid = cmd->argv[1];
 		cmd->flags = NLM_F_REQUEST;
 	} else {
@@ -55,6 +55,11 @@ static rpl_ctl_res_t list_dag_parse(struct rpl_ctl_cmd *cmd)
 static rpl_ctl_res_t list_dag_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
 	/* List single interface */
+
+	//FIXME ADD INSTANCE ID TO REQUEST
+
+	//FIXME ADD AN IN6_ADDR to dodagid. use inet_pton if required
+
 	if (cmd->dodagid)
 		NLA_PUT_STRING(msg, RPL_ATTR_DODAG_ID, cmd->dodagid);
 
@@ -98,7 +103,8 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	/* Get attribute values from the message */
 	instance_id = nla_get_u8(attrs[RPL_ATTR_INSTANCE_ID]);
 	ocp = nla_get_u16(attrs[RPL_ATTR_OCP]);
-	dodagid = nla_get_string(attrs[RPL_ATTR_DODAG_ID]);
+
+	dodagid = nla_get_string(attrs[RPL_ATTR_DODAG_ID]); // FIXME this must be a struct in6_addr
 
 	version = nla_get_u8(attrs[RPL_ATTR_VERSION]);
 	grounded = nla_get_u8(attrs[RPL_ATTR_GROUNDED]);
@@ -272,7 +278,7 @@ const struct rpl_ctl_module rpl_ctl_dag = {
 	.commands = {
 	{
 		.name		= "list",
-		.usage		= "[dodagid]",
+		.usage		= "instanceID [dodagid]",
 		.doc		= "List DAG(s).",
 		.nl_cmd		= RPL_LIST_DAG,
 		.parse		= list_dag_parse,
