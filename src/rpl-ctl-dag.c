@@ -60,6 +60,8 @@ static rpl_ctl_res_t list_dag_request(struct rpl_ctl_cmd *cmd, struct nl_msg *ms
 
 	//FIXME ADD AN IN6_ADDR to dodagid. use inet_pton if required
 
+	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
+
 	if (cmd->dodagid)
 		NLA_PUT_STRING(msg, RPL_ATTR_DODAG_ID, cmd->dodagid);
 
