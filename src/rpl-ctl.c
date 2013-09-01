@@ -233,7 +233,7 @@ void rpl_ctl_help(const char *pname)
 	int i, j;
 
 	printf("Usage: %s [options] [command]\n", pname);
-	printf("Manage IEEE 802.15.4 network interfaces\n\n");
+	printf("Configure RPL for network interfaces\n\n");
 
 	printf("Options:\n");
 	printf("  -d, --debug[=N]                print netlink messages and other debug information\n");
