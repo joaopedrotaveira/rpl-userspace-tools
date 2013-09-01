@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	int c;
 	int i;
 	int family;
-	int group;
+	// int group;
 	struct nl_sock *nl;
 	struct nl_msg *msg;
 	char *dummy = NULL;
@@ -173,13 +173,13 @@ int main(int argc, char **argv)
 	}
 	genl_connect(nl);
 	family = genl_ctrl_resolve(nl, RPL_NL_NAME);
-	group = nl_get_multicast_id(nl,
-			RPL_NL_NAME, RPL_MCAST_DAG_NAME);
-	if (group < 0) {
-		fprintf(stderr, "Could not get multicast group ID: %s\n", strerror(-group));
-		return 1;
-	}
-	nl_socket_add_membership(nl, group);
+//	group = nl_get_multicast_id(nl,
+//			RPL_NL_NAME, RPL_MCAST_DAG_NAME);
+//	if (group < 0) {
+//		fprintf(stderr, "Could not get multicast group ID: %s\n", strerror(-group));
+//		return 1;
+//	}
+//	nl_socket_add_membership(nl, group);
 	rpl_ctl_seq = nl_socket_use_seq(nl) + 1;
 	nl_socket_modify_cb(nl, NL_CB_VALID, NL_CB_CUSTOM,
 		rpl_ctl_cb_valid, (void*)&cmd);
