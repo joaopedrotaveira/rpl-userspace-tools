@@ -88,6 +88,32 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 
 
 	/* Check for mandatory attributes */
+	if (!attrs[RPL_ATTR_INSTANCE_ID])
+		printf("UPS 1\n");
+	if (!attrs[RPL_ATTR_OCP])
+		printf("UPS 2\n");
+	if (!attrs[RPL_ATTR_DODAG_ID])
+		printf("UPS 3\n");
+	if (!attrs[RPL_ATTR_VERSION])
+		printf("UPS 4\n");
+	if (!attrs[RPL_ATTR_GROUNDED])
+		printf("UPS 5\n");
+	if (!attrs[RPL_ATTR_MOP])
+		printf("UPS 6\n");
+	if (!attrs[RPL_ATTR_DTSN])
+		printf("UPS 7\n");
+	if (!attrs[RPL_ATTR_RANK])
+		printf("UPS 8\n");
+	if (!attrs[RPL_ATTR_DAO_SEQUENCE])
+		printf("UPS 9\n");
+	if (!attrs[RPL_ATTR_PCS])
+		printf("UPS 10\n");
+	if (!attrs[RPL_ATTR_MIN_HOP_RANK_INCR])
+		printf("UPS 11\n");
+	if (!attrs[RPL_ATTR_IS_ROOT])
+		printf("UPS 12\n");
+
+	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
 	    !attrs[RPL_ATTR_OCP] ||
 	    !attrs[RPL_ATTR_DODAG_ID] ||
