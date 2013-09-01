@@ -28,7 +28,7 @@ struct nla_policy rpl_policy[RPL_ATTR_MAX + 1] = {
 	[RPL_ATTR_OCP] = { .type = NLA_U16, },
 	[RPL_ATTR_INSTANCE_ID] = { .type = NLA_U8, },
 
-	[RPL_ATTR_DODAG_ID] = { .type = sizeof(struct in6_addr), },
+	[RPL_ATTR_DODAG_ID] = { .minlen = sizeof(struct in6_addr), .maxlen = sizeof(struct in6_addr),},
 	[RPL_ATTR_RANK] = { .type = NLA_RPL_RANK, },
 	[RPL_ATTR_VERSION] = { .type = NLA_U8, },
 	[RPL_ATTR_MOP] = { .type = NLA_U8, },
