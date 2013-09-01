@@ -144,7 +144,7 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	rank = nla_get_u16(attrs[RPL_ATTR_RANK]);
 	dao_sequence = nla_get_u8(attrs[RPL_ATTR_DAO_SEQUENCE]);
 	pcs = nla_get_u8(attrs[RPL_ATTR_PCS]);
-	min_hop_rank_inc = nla_get_u8(attrs[RPL_ATTR_MIN_HOP_RANK_INCR]);
+	min_hop_rank_inc = nla_get_u16(attrs[RPL_ATTR_MIN_HOP_RANK_INCR]);
 
 	/* Display information about interface */
 	printf("%s DODAG object\n", dodagid);
