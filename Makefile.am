@@ -4,7 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = lib src
 
-include_HEADERS = include/ieee802154.h include/nl802154.h
+include_HEADERS = include/rpl_nl.h
 noinst_HEADERS = include/libcommon.h include/logging.h
 
 EXTRA_DIST = $(srcdir)/include/linux

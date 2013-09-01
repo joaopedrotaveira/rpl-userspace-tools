@@ -1,26 +1,17 @@
 /*
- * Linux IEEE 802.15.4 userspace tools
+ *	RPL: IPv6 Routing Protocol for Low-Power and Lossy Networks
+ *	Userspace Tools
  *
- * Copyright (C) 2008, 2009 Siemens AG
+ *	Authors:
+ *	Joao Pedro Taveira	<joao.silva@inov.pt>
+ *  Sergey Lapin <slapin@ossfans.org>
+ *  Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+ *  Maxim Osipov <maxim.osipov@siemens.com>
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; version 2 of the License.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Written-by:
- * Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
- * Sergey Lapin <slapin@ossfans.org>
- * Maxim Osipov <maxim.osipov@siemens.com>
- *
+ *	This program is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU General Public License
+ *      as published by the Free Software Foundation; either version
+ *      2 of the License.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,18 +26,18 @@
 #include <netlink/genl/ctrl.h>
 #include <getopt.h>
 
-#include <ieee802154.h>
-#include <nl802154.h>
+#include <rpl_nl.h>
+//#include <nl802154.h>
 #include <libcommon.h>
 
-#include "iz.h"
+#include "rpl-ctl.h"
 
-static int iz_cb_seq_check(struct nl_msg *msg, void *arg);
-static int iz_cb_valid(struct nl_msg *msg, void *arg);
-static int iz_cb_finish(struct nl_msg *msg, void *arg);
+static int rpl_ctl_cb_seq_check(struct nl_msg *msg, void *arg);
+static int rpl_ctl_cb_valid(struct nl_msg *msg, void *arg);
+static int rpl_ctl_cb_finish(struct nl_msg *msg, void *arg);
 
 #ifdef HAVE_GETOPT_LONG
-static const struct option iz_long_opts[] = {
+static const struct option rpl_ctl_long_opts[] = {
 	{ "debug", optional_argument, NULL, 'd' },
 	{ "version", no_argument, NULL, 'v' },
 	{ "help", no_argument, NULL, 'h' },
@@ -55,40 +46,38 @@ static const struct option iz_long_opts[] = {
 #endif
 
 /* Expected sequence number */
-static int iz_seq = 0;
+static int rpl_ctl_seq = 0;
 
 /* Parsed options */
-static int iz_debug = 0;
+static int rpl_ctl_debug = 0;
 
 #define dprintf(lvl, fmt...)			\
 	do {					\
-		if (iz_debug >= lvl)		\
+		if (rpl_ctl_debug >= lvl)		\
 			printf(fmt);		\
 	} while(0)
 
 
 /* Exit from receive loop (set from receive callback) */
-static int iz_exit = 0;
+static int rpl_ctl_exit = 0;
 
-extern const struct iz_module iz_common;
-extern const struct iz_module iz_mac;
-extern const struct iz_module iz_phy;
+extern const struct rpl_ctl_module rpl_ctl_common;
+extern const struct rpl_ctl_module rpl_ctl_dag;
 
-static const struct iz_module *iz_modules[] = {
-	&iz_common,
-	&iz_mac,
-	&iz_phy,
+static const struct rpl_ctl_module *rpl_ctl_modules[] = {
+	&rpl_ctl_common,
+	&rpl_ctl_dag,
 	NULL
 };
 
-const struct iz_cmd_desc *get_cmd(const char *name)
+const struct rpl_ctl_cmd_desc *get_cmd(const char *name)
 {
 	int i, j;
 
-	for (i = 0; iz_modules[i]; i++) {
-		for (j = 0; iz_modules[i]->commands[j].name; j++) {
-			if (!strcmp(name, iz_modules[i]->commands[j].name)) {
-				return &iz_modules[i]->commands[j];
+	for (i = 0; rpl_ctl_modules[i]; i++) {
+		for (j = 0; rpl_ctl_modules[i]->commands[j].name; j++) {
+			if (!strcmp(name, rpl_ctl_modules[i]->commands[j].name)) {
+				return &rpl_ctl_modules[i]->commands[j];
 			}
 		}
 	}
@@ -107,14 +96,14 @@ int main(int argc, char **argv)
 	char *dummy = NULL;
 
 	/* Currently processed command info */
-	struct iz_cmd cmd;
+	struct rpl_ctl_cmd cmd;
 
 
 	/* Parse options */
 	while (1) {
 #ifdef HAVE_GETOPT_LONG
 		int opt_idx = -1;
-		c = getopt_long(argc, argv, "d::vh", iz_long_opts, &opt_idx);
+		c = getopt_long(argc, argv, "d::vh", rpl_ctl_long_opts, &opt_idx);
 #else
 		c = getopt(argc, argv, "d::vh");
 #endif
@@ -126,16 +115,16 @@ int main(int argc, char **argv)
 			if (optarg) {
 				i = strtol(optarg, &dummy, 10);
 				if (*dummy == '\0')
-					iz_debug = nl_debug = i;
+					rpl_ctl_debug = nl_debug = i;
 				else {
 					fprintf(stderr, "Error: incorrect debug level: '%s'\n", optarg);
 					exit(1);
 				}
 			} else
-				iz_debug = nl_debug = 1;
+				rpl_ctl_debug = nl_debug = 1;
 			break;
 		case 'v':
-			printf(	"iz " VERSION "\n"
+			printf(	"rpl_ctl " VERSION "\n"
 				"Copyright (C) 2008, 2009 by Siemens AG\n"
 				"License GPLv2 GNU GPL version 2 <http://gnu.org/licenses/gpl.html>.\n"
 				"This is free software: you are free to change and redistribute it.\n"
@@ -144,15 +133,15 @@ int main(int argc, char **argv)
 				"Written by Dmitry Eremin-Solenikov, Sergey Lapin and Maxim Osipov\n");
 			return 0;
 		case 'h':
-			iz_help(argv[0]);
+			rpl_ctl_help(argv[0]);
 			return 0;
 		default:
-			iz_help(argv[0]);
+			rpl_ctl_help(argv[0]);
 			return 1;
 		}
 	}
 	if (optind >= argc) {
-		iz_help(argv[0]);
+		rpl_ctl_help(argv[0]);
 		return 1;
 	}
 
@@ -169,9 +158,9 @@ int main(int argc, char **argv)
 	}
 	if (cmd.desc->parse) {
 		i = cmd.desc->parse(&cmd);
-		if (i == IZ_STOP_OK) {
+		if (i == RPL_CTL_STOP_OK) {
 			return 0;
-		} else if (i == IZ_STOP_ERR) {
+		} else if (i == RPL_CTL_STOP_ERR) {
 			printf("Command line parsing error!\n");
 			return 1;
 		}
@@ -184,21 +173,21 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	genl_connect(nl);
-	family = genl_ctrl_resolve(nl, IEEE802154_NL_NAME);
+	family = genl_ctrl_resolve(nl, RPL_NL_NAME);
 	group = nl_get_multicast_id(nl,
-			IEEE802154_NL_NAME, IEEE802154_MCAST_COORD_NAME);
+			RPL_NL_NAME, RPL_MCAST_DAG_NAME);
 	if (group < 0) {
 		fprintf(stderr, "Could not get multicast group ID: %s\n", strerror(-group));
 		return 1;
 	}
 	nl_socket_add_membership(nl, group);
-	iz_seq = nl_socket_use_seq(nl) + 1;
+	rpl_ctl_seq = nl_socket_use_seq(nl) + 1;
 	nl_socket_modify_cb(nl, NL_CB_VALID, NL_CB_CUSTOM,
-		iz_cb_valid, (void*)&cmd);
+		rpl_ctl_cb_valid, (void*)&cmd);
 	nl_socket_modify_cb(nl, NL_CB_FINISH, NL_CB_CUSTOM,
-		iz_cb_finish, (void*)&cmd);
+		rpl_ctl_cb_finish, (void*)&cmd);
 	nl_socket_modify_cb(nl, NL_CB_SEQ_CHECK, NL_CB_CUSTOM,
-		iz_cb_seq_check, (void*)&cmd);
+		rpl_ctl_cb_seq_check, (void*)&cmd);
 
 	/* Send request, if necessary */
 	if (cmd.desc->request) {
@@ -210,7 +199,7 @@ int main(int argc, char **argv)
 		genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, family, 0,
 			cmd.flags, cmd.desc->nl_cmd, 1);
 
-		if (cmd.desc->request(&cmd, msg) != IZ_CONT_OK) {
+		if (cmd.desc->request(&cmd, msg) != RPL_CTL_CONT_OK) {
 			printf("Request processing error!\n");
 			return 1;
 		}
@@ -224,7 +213,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Received message handling loop */
-	while (iz_exit == IZ_CONT_OK) {
+	while (rpl_ctl_exit == RPL_CTL_CONT_OK) {
 		int err = nl_recvmsgs_default(nl);
 		if (err != NLE_SUCCESS) {
 			nl_perror(err, "Receive failed");
@@ -233,13 +222,13 @@ int main(int argc, char **argv)
 	}
 	nl_close(nl);
 
-	if (iz_exit == IZ_STOP_ERR)
+	if (rpl_ctl_exit == RPL_CTL_STOP_ERR)
 		return 1;
 
 	return 0;
 }
 
-void iz_help(const char *pname)
+void rpl_ctl_help(const char *pname)
 {
 	int i, j;
 
@@ -252,12 +241,12 @@ void iz_help(const char *pname)
 	printf("  -h, --help                     print help\n");
 
 	/* Print short help for available commands */
-	for (i = 0; iz_modules[i]; i++) {
-		printf("\n%s commands:\n", iz_modules[i]->name);
-		for (j = 0; iz_modules[i]->commands[j].name; j++) {
-			printf("  %s  %s\n     %s\n\n", iz_modules[i]->commands[j].name,
-				iz_modules[i]->commands[j].usage,
-				iz_modules[i]->commands[j].doc);
+	for (i = 0; rpl_ctl_modules[i]; i++) {
+		printf("\n%s commands:\n", rpl_ctl_modules[i]->name);
+		for (j = 0; rpl_ctl_modules[i]->commands[j].name; j++) {
+			printf("  %s  %s\n     %s\n\n", rpl_ctl_modules[i]->commands[j].name,
+				rpl_ctl_modules[i]->commands[j].usage,
+				rpl_ctl_modules[i]->commands[j].doc);
 		}
 	}
 
@@ -267,7 +256,7 @@ void iz_help(const char *pname)
 }
 
 /* Callback for sequence number check */
-static int iz_cb_seq_check(struct nl_msg *msg, void *arg)
+static int rpl_ctl_cb_seq_check(struct nl_msg *msg, void *arg)
 {
 	uint32_t seq;
 
@@ -275,26 +264,26 @@ static int iz_cb_seq_check(struct nl_msg *msg, void *arg)
 		return NL_OK;
 
 	seq = nlmsg_hdr(msg)->nlmsg_seq;
-	if (seq == iz_seq) {
+	if (seq == rpl_ctl_seq) {
 		if (!(nlmsg_hdr(msg)->nlmsg_flags & NLM_F_MULTI))
-			iz_seq ++;
+			rpl_ctl_seq ++;
 		return NL_OK;
 	}
-	printf("Sequence number mismatch (%i, %i)!", seq, iz_seq);
+	printf("Sequence number mismatch (%i, %i)!", seq, rpl_ctl_seq);
 	return NL_SKIP;
 }
 
 /* Callback for received valid messages */
-static int iz_cb_valid(struct nl_msg *msg, void *arg)
+static int rpl_ctl_cb_valid(struct nl_msg *msg, void *arg)
 {
 	struct nlmsghdr *nlh = nlmsg_hdr(msg);
-	struct nlattr *attrs[IEEE802154_ATTR_MAX+1];
+	struct nlattr *attrs[RPL_ATTR_MAX+1];
         struct genlmsghdr *ghdr;
-	struct iz_cmd *cmd = arg;
+	struct rpl_ctl_cmd *cmd = arg;
 	int i;
 
 	/* Validate message and parse attributes */
-	genlmsg_parse(nlh, 0, attrs, IEEE802154_ATTR_MAX, ieee802154_policy);
+	genlmsg_parse(nlh, 0, attrs, RPL_ATTR_MAX, rpl_policy);
 
         ghdr = nlmsg_data(nlh);
 
@@ -303,26 +292,26 @@ static int iz_cb_valid(struct nl_msg *msg, void *arg)
 
 	for (i = 0; cmd->desc->response[i].nl; i++)
 		if (cmd->desc->response[i].nl == ghdr->cmd ||
-		    cmd->desc->response[i].nl == IZ_RESPONSE_ALL) {
-			iz_exit = cmd->desc->response->call(cmd, ghdr, attrs);
+		    cmd->desc->response[i].nl == RPL_CTL_RESPONSE_ALL) {
+			rpl_ctl_exit = cmd->desc->response->call(cmd, ghdr, attrs);
 	}
 
 	return 0;
 }
 
 /* Callback for the end of the multipart message */
-static int iz_cb_finish(struct nl_msg *msg, void *arg)
+static int rpl_ctl_cb_finish(struct nl_msg *msg, void *arg)
 {
 	struct nlmsghdr *nlh = nlmsg_hdr(msg);
-	struct iz_cmd *cmd = arg;
+	struct rpl_ctl_cmd *cmd = arg;
 
 	dprintf(1, "Received finish for interface\n");
 
 	if (cmd->seq == nlh->nlmsg_seq) {
 		if (cmd->desc->finish)
-			iz_exit = cmd->desc->finish(cmd);
+			rpl_ctl_exit = cmd->desc->finish(cmd);
 		else
-			iz_exit = IZ_STOP_ERR;
+			rpl_ctl_exit = RPL_CTL_STOP_ERR;
 	}
 
 	return 0;
