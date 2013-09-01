@@ -99,8 +99,10 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 		!attrs[RPL_ATTR_DAO_SEQUENCE] ||
 		!attrs[RPL_ATTR_PCS] ||
 		!attrs[RPL_ATTR_MIN_HOP_RANK_INCR] ||
-		!attrs[RPL_ATTR_IS_ROOT])
+		!attrs[RPL_ATTR_IS_ROOT]){
+		printf("UPS\n");
 		return RPL_CTL_STOP_ERR;
+	}
 
 	/* Get attribute values from the message */
 	instance_id = nla_get_u8(attrs[RPL_ATTR_INSTANCE_ID]);
