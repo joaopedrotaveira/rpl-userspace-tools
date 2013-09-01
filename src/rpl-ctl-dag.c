@@ -22,6 +22,7 @@
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 
+#include <arpa/inet.h>
 #include <rpl_nl.h>
 #include <libcommon.h>
 
@@ -75,7 +76,8 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 {
 	uint8_t instance_id;
 	uint16_t ocp;
-	char * dodagid;
+	char dodagid_str[INET6_ADDRSTRLEN];
+	struct in6_addr *dodagid;
 	uint8_t version;
 	uint8_t	grounded;
 	uint8_t	is_root;
@@ -134,7 +136,8 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	instance_id = nla_get_u8(attrs[RPL_ATTR_INSTANCE_ID]);
 	ocp = nla_get_u16(attrs[RPL_ATTR_OCP]);
 
-	dodagid = nla_get_string(attrs[RPL_ATTR_DODAG_ID]); // FIXME this must be a struct in6_addr
+	dodagid = nla_data(attrs[RPL_ATTR_DODAG_ID]);
+	inet_ntop(AF_INET6,dodagid,dodagid_str,INET6_ADDRSTRLEN);
 
 	version = nla_get_u8(attrs[RPL_ATTR_VERSION]);
 	grounded = nla_get_u8(attrs[RPL_ATTR_GROUNDED]);
@@ -147,11 +150,11 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	min_hop_rank_inc = nla_get_u16(attrs[RPL_ATTR_MIN_HOP_RANK_INCR]);
 
 	/* Display information about interface */
-	printf("%s DODAG object\n", dodagid);
+	printf("%s DODAG object\n", dodagid_str);
 	printf("InstanceID: %d\n", instance_id);
 	printf("OF: %d\n", ocp);
 	printf("Version: %d\n", version);
-	printf("DodagID: %s\n",dodagid);
+	printf("DodagID: %s\n",dodagid_str);
 	printf("Rank: %d\n", rank);
 	printf("Grounded: %d\n", grounded);
 	printf("MOP: %d\n", mop);
