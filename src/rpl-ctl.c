@@ -125,12 +125,11 @@ int main(int argc, char **argv)
 			break;
 		case 'v':
 			printf(	"rpl_ctl " VERSION "\n"
-				"Copyright (C) 2008, 2009 by Siemens AG\n"
 				"License GPLv2 GNU GPL version 2 <http://gnu.org/licenses/gpl.html>.\n"
 				"This is free software: you are free to change and redistribute it.\n"
 				"There is NO WARRANTY, to the extent permitted by law.\n"
 				"\n"
-				"Written by Dmitry Eremin-Solenikov, Sergey Lapin and Maxim Osipov\n");
+				"Written by Joao Pedro Taveira\n");
 			return 0;
 		case 'h':
 			rpl_ctl_help(argv[0]);
@@ -233,7 +232,7 @@ void rpl_ctl_help(const char *pname)
 	int i, j;
 
 	printf("Usage: %s [options] [command]\n", pname);
-	printf("Configure RPL for network interfaces\n\n");
+	printf("RPL Configuration tool for network interfaces\n\n");
 
 	printf("Options:\n");
 	printf("  -d, --debug[=N]                print netlink messages and other debug information\n");

@@ -18,35 +18,35 @@
 #include <netlink/attr.h>
 #include <rpl_nl.h>
 
-#define NLA_HW_ADDR NLA_U64
+#define NLA_RPL_RANK NLA_U16
 
 struct nla_policy rpl_policy[RPL_ATTR_MAX + 1] = {
 	[RPL_ATTR_DEV_NAME] = { .type = NLA_STRING, },
 	[RPL_ATTR_DEV_INDEX] = { .type = NLA_U32, },
-	[RPL_ATTR_PHY_NAME] = { .type = NLA_STRING, },
 
-//	[RPL_ATTR_STATUS] = { .type = NLA_U8, },
-//	[RPL_ATTR_SHORT_ADDR] = { .type = NLA_U16, },
-//	[RPL_ATTR_HW_ADDR] = { .type = NLA_HW_ADDR, },
-//	[RPL_ATTR_PAN_ID] = { .type = NLA_U16, },
-//	[RPL_ATTR_CHANNEL] = { .type = NLA_U8, },
-	[RPL_ATTR_PAGE] = { .type = NLA_U8, },
-//	[RPL_ATTR_COORD_SHORT_ADDR] = { .type = NLA_U16, },
-//	[RPL_ATTR_COORD_HW_ADDR] = { .type = NLA_HW_ADDR, },
-//	[RPL_ATTR_COORD_PAN_ID] = { .type = NLA_U16, },
-//	[RPL_ATTR_SRC_SHORT_ADDR] = { .type = NLA_U16, },
-//	[RPL_ATTR_SRC_HW_ADDR] = { .type = NLA_HW_ADDR, },
-//	[RPL_ATTR_SRC_PAN_ID] = { .type = NLA_U16, },
-//	[RPL_ATTR_DEST_SHORT_ADDR] = { .type = NLA_U16, },
-//	[RPL_ATTR_DEST_HW_ADDR] = { .type = NLA_HW_ADDR, },
-//	[RPL_ATTR_DEST_PAN_ID] = { .type = NLA_U16, },
+	[RPL_ATTR_DEV_INDEX] = { .type = NLA_U32, },
+	[RPL_ATTR_OCP] = { .type = NLA_U16, },
+	[RPL_ATTR_INSTANCE_ID] = { .type = NLA_U8, },
 
-//	[RPL_ATTR_CAPABILITY] = { .type = NLA_U8, },
-//	[RPL_ATTR_REASON] = { .type = NLA_U8, },
-//	[RPL_ATTR_SCAN_TYPE] = { .type = NLA_U8, },
-//	[RPL_ATTR_CHANNELS] = { .type = NLA_U32, },
-//	[RPL_ATTR_DURATION] = { .type = NLA_U8, },
-//	[RPL_ATTR_ED_LIST] = { .len = 27 },
-	[RPL_ATTR_DAG_PAGE_LIST] = { .minlen = 0, .maxlen = 32 * 4, },
+	[RPL_ATTR_DODAG_ID] = { .type = sizeof(struct in6_addr), },
+	[RPL_ATTR_RANK] = { .type = NLA_RPL_RANK, },
+	[RPL_ATTR_VERSION] = { .type = NLA_U8, },
+	[RPL_ATTR_MOP] = { .type = NLA_U8, },
+	[RPL_ATTR_DTSN] = { .type = NLA_U8, },
+	[RPL_ATTR_DAO_SEQUENCE] = { .type = NLA_U8, },
+
+	[RPL_ATTR_GROUNDED] = { .type = NLA_U8, },
+	[RPL_ATTR_IS_ROOT] = { .type = NLA_U8, },
+
+	[RPL_ATTR_PCS] = { .type = NLA_U8, },
+	[RPL_ATTR_DIO_INT_DOUBL] = { .type = NLA_U8, },
+	[RPL_ATTR_DIO_INT_MIN] = { .type = NLA_U8, },
+	[RPL_ATTR_DIO_REDUN] = { .type = NLA_U8, },
+	[RPL_ATTR_MAX_RANK_INCR] = { .type = NLA_RPL_RANK, },
+	[RPL_ATTR_MIN_HOP_RANK_INCR] = { .type = NLA_RPL_RANK, },
+
+	[RPL_ATTR_DEF_LIFETIME] = { .type = NLA_U8, },
+	[RPL_ATTR_LIFETIME_UNIT] = { .type = NLA_U16, },
+
 };
 
