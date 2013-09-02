@@ -66,17 +66,17 @@ nla_put_failure:
 	return RPL_CTL_STOP_ERR;
 }
 
-static rpl_ctl_res_t list_parent_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
-{
-	printf("Parents List\n");
-	return RPL_CTL_CONT_OK;
-}
-
-static rpl_ctl_res_t list_neighbors_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
-{
-	printf("Neighbors List\n");
-	return RPL_CTL_CONT_OK;
-}
+//static rpl_ctl_res_t list_parent_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+//{
+//	printf("Parents List\n");
+//	return RPL_CTL_CONT_OK;
+//}
+//
+//static rpl_ctl_res_t list_neighbors_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+//{
+//	printf("Neighbors List\n");
+//	return RPL_CTL_CONT_OK;
+//}
 
 static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
