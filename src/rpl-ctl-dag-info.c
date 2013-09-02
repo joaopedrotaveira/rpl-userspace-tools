@@ -69,13 +69,13 @@ nla_put_failure:
 static rpl_ctl_res_t list_parent_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
 	printf("Parents List\n");
-	return RPL_CTL_STOP_OK;
+	return RPL_CTL_CONT_OK;
 }
 
 static rpl_ctl_res_t list_neighbors_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
 	printf("Neighbors List\n");
-	return RPL_CTL_STOP_OK;
+	return RPL_CTL_CONT_OK;
 }
 
 static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
@@ -141,7 +141,7 @@ static struct rpl_ctl_cmd_event list_parent_response_event[] = {
 	},
 	{
 		.call = list_node_response,
-		.nl = RPL_CTL_RESPONSE_ALL,
+		.nl = RPL_LIST_PARENT,
 	},
 	{},
 };
@@ -153,7 +153,7 @@ static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
 	},
 	{
 		.call = list_node_response,
-		.nl = RPL_CTL_RESPONSE_ALL,
+		.nl = RPL_LIST_NEIGHBORS,
 	},
 	{},
 };
