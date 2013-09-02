@@ -4,9 +4,6 @@
  *
  *	Authors:
  *	Joao Pedro Taveira	<joao.silva@inov.pt>
- *  Sergey Lapin <slapin@ossfans.org>
- *  Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
- *  Maxim Osipov <maxim.osipov@siemens.com>
  *
  *	This program is free software; you can redistribute it and/or
  *      modify it under the terms of the GNU General Public License
