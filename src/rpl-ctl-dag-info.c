@@ -134,14 +134,22 @@ static rpl_ctl_res_t list_node_finish(struct rpl_ctl_cmd *cmd)
 	return RPL_CTL_STOP_OK;
 }
 
-static struct rpl_ctl_cmd_event list_node_response_event[] = {
-	{
-		.call = list_neighbors_header_response,
-		.nl = RPL_LIST_NEIGHBORS,
-	},
+static struct rpl_ctl_cmd_event list_parent_response_event[] = {
 	{
 		.call = list_parent_header_response,
 		.nl = RPL_LIST_PARENT,
+	},
+	{
+		.call = list_node_response,
+		.nl = RPL_CTL_RESPONSE_ALL,
+	},
+	{},
+};
+
+static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
+	{
+		.call = list_neighbors_header_response,
+		.nl = RPL_LIST_NEIGHBORS,
 	},
 	{
 		.call = list_node_response,
@@ -160,7 +168,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 				.nl_cmd		= RPL_LIST_PARENT,
 				.parse		= list_node_parse,
 				.request	= list_node_request,
-				.response	= list_node_response_event,
+				.response	= list_parent_response_event,
 				.finish		= list_node_finish,
 			},
 			{
@@ -170,7 +178,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 				.nl_cmd		= RPL_LIST_NEIGHBORS,
 				.parse		= list_node_parse,
 				.request	= list_node_request,
-				.response	= list_node_response_event,
+				.response	= list_neighbors_response_event,
 				.finish		= list_node_finish,
 			},
 			{
