@@ -309,15 +309,30 @@ static struct rpl_ctl_cmd_event del_dag_response_event[] = {
 
 static rpl_ctl_res_t list_iface_parse(struct rpl_ctl_cmd *cmd)
 {
+	if (cmd->argc > 3) {
+		printf("Incorrect number of arguments!\n");
+		return RPL_CTL_STOP_ERR;
+	}
 
-	//TODO ....
+	/* rpl_ctl listif eth0 */
+	if (cmd->argc == 3) {
+		cmd->iface = cmd->argv[1];
+		cmd->flags = NLM_F_REQUEST;
+	} else {
+		/* rpl_ctl list */
+		cmd->iface = NULL;
+		cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
+	}
+
 	return RPL_CTL_CONT_OK;
 }
 
 static rpl_ctl_res_t list_iface_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
-	//TODO ....
-
+	/* List single interface */
+	if (cmd->iface){
+		NLA_PUT_STRING(msg,RPL_ATTR_DEV_NAME,cmd->iface);
+	}
 
 	return RPL_CTL_CONT_OK;
 
@@ -327,14 +342,28 @@ nla_put_failure:
 
 static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
-	//TODO ....
+	char *dev_name;
+	int enabled;
+	int autogen;
+
+	/* Check for mandatory attributes */
+	if (!attrs[RPL_ATTR_DEV_NAME] ||
+	    !attrs[RPL_ATTR_DEV_ENABLED] ||
+	    !attrs[RPL_ATTR_DEV_AUTOGEN]){
+		return RPL_CTL_STOP_ERR;
+	}
+
+	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
+	enabled = nla_get_u8(attrs[RPL_ATTR_DEV_ENABLED]);
+	autogen = nla_get_u8(attrs[RPL_ATTR_DEV_AUTOGEN]);
+
+	printf("Device: %s Enabled: %s Autogen: %s\n", dev_name, (enabled)?"Yes":"No", (autogen)?"Yes":"No");
 
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
 }
 
 static rpl_ctl_res_t list_iface_finish(struct rpl_ctl_cmd *cmd)
 {
-	//TODO ....
 	return RPL_CTL_STOP_OK;
 }
 

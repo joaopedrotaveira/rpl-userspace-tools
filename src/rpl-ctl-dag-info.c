@@ -63,18 +63,6 @@ nla_put_failure:
 	return RPL_CTL_STOP_ERR;
 }
 
-//static rpl_ctl_res_t list_parent_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
-//{
-//	printf("Parents List\n");
-//	return RPL_CTL_CONT_OK;
-//}
-//
-//static rpl_ctl_res_t list_neighbors_header_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
-//{
-//	printf("Neighbors List\n");
-//	return RPL_CTL_CONT_OK;
-//}
-
 static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
 	uint8_t instance_id;
@@ -99,7 +87,6 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	    !attrs[RPL_ATTR_IS_DAO_PARENT] ||
 	    !attrs[RPL_ATTR_DTSN] ||
 		!attrs[RPL_ATTR_RANK]){
-		printf("UPS\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
@@ -115,8 +102,8 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	dtsn = nla_get_u8(attrs[RPL_ATTR_DTSN]);
 	rank = nla_get_u16(attrs[RPL_ATTR_RANK]);
 
-	is_dodag_parent = nla_get_u16(attrs[RPL_ATTR_IS_DODAG_PARENT]);
-	is_dao_parent = nla_get_u16(attrs[RPL_ATTR_IS_DAO_PARENT]);
+	is_dodag_parent = nla_get_u8(attrs[RPL_ATTR_IS_DODAG_PARENT]);
+	is_dao_parent = nla_get_u8(attrs[RPL_ATTR_IS_DAO_PARENT]);
 
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 

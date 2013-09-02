@@ -23,8 +23,9 @@
 struct nla_policy rpl_policy[RPL_ATTR_MAX + 1] = {
 	[RPL_ATTR_DEV_NAME] = { .type = NLA_STRING, },
 	[RPL_ATTR_DEV_INDEX] = { .type = NLA_U32, },
+	[RPL_ATTR_DEV_ENABLED] = { .type = NLA_U8, },
+	[RPL_ATTR_DEV_AUTOGEN] = { .type = NLA_U8, },
 
-	[RPL_ATTR_DEV_INDEX] = { .type = NLA_U32, },
 	[RPL_ATTR_OCP] = { .type = NLA_U16, },
 	[RPL_ATTR_INSTANCE_ID] = { .type = NLA_U8, },
 
