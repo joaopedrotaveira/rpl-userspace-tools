@@ -27,7 +27,6 @@
 #include <getopt.h>
 
 #include <rpl_nl.h>
-//#include <nl802154.h>
 #include <libcommon.h>
 
 #include "rpl-ctl.h"
@@ -62,11 +61,15 @@ static int rpl_ctl_debug = 0;
 static int rpl_ctl_exit = 0;
 
 extern const struct rpl_ctl_module rpl_ctl_common;
-extern const struct rpl_ctl_module rpl_ctl_dag;
+extern const struct rpl_ctl_module rpl_ctl_dag_info;
+extern const struct rpl_ctl_module rpl_ctl_dag_mng;
+extern const struct rpl_ctl_module rpl_ctl_dag_conf;
 
 static const struct rpl_ctl_module *rpl_ctl_modules[] = {
 	&rpl_ctl_common,
-	&rpl_ctl_dag,
+	&rpl_ctl_dag_conf,
+	&rpl_ctl_dag_info,
+	&rpl_ctl_dag_mng,
 	NULL
 };
 

@@ -306,8 +306,8 @@ static struct rpl_ctl_cmd_event del_dag_response_event[] = {
 	{},
 };
 
-const struct rpl_ctl_module rpl_ctl_dag = {
-	.name = "DAGs",
+const struct rpl_ctl_module rpl_ctl_dag_conf = {
+	.name = "DAGs Configuration",
 	.commands = {
 	{
 		.name		= "list",

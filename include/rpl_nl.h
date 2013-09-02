@@ -68,6 +68,18 @@ enum {
 
 	RPL_LIST_OF,
 
+	/* Management */
+	RPL_GLOBAL_REPAIR,
+	RPL_LOCAL_REPAIR,
+	RPL_DAO_UPDATE,
+
+	/* Information */
+	RPL_LIST_PARENT,
+	RPL_LIST_NEIGHBORS,
+	RPL_UPWARD_ROUTES,
+	RPL_DOWNWARD_ROUTES,
+
+	/* Configuration */
 	RPL_LIST_DAG,
 	RPL_ADD_DAG,
 	RPL_DEL_DAG,

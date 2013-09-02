@@ -10,7 +10,7 @@ dist_man_MANS = $(manpages)
 endif
 EXTRA_DIST = $(manpages)
 
-rpl_ctl_SOURCES = rpl-ctl.c rpl-ctl-common.c rpl-ctl-dag.c
+rpl_ctl_SOURCES = rpl-ctl.c rpl-ctl-common.c rpl-ctl-dag-conf.c rpl-ctl-dag-info.c rpl-ctl-dag-mng.c
 noinst_HEADERS = rpl-ctl.h
 
 rpl_ctl_CFLAGS = $(AM_CFLAGS) $(NL_CFLAGS) -D_GNU_SOURCE
