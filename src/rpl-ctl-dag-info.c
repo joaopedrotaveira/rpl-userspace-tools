@@ -135,10 +135,10 @@ static rpl_ctl_res_t list_node_finish(struct rpl_ctl_cmd *cmd)
 }
 
 static struct rpl_ctl_cmd_event list_parent_response_event[] = {
-	{
-		.call = list_parent_header_response,
-		.nl = RPL_LIST_PARENT,
-	},
+//	{
+//		.call = list_parent_header_response,
+//		.nl = RPL_LIST_PARENT,
+//	},
 	{
 		.call = list_node_response,
 		.nl = RPL_LIST_PARENT,
@@ -147,10 +147,10 @@ static struct rpl_ctl_cmd_event list_parent_response_event[] = {
 };
 
 static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
-	{
-		.call = list_neighbors_header_response,
-		.nl = RPL_LIST_NEIGHBORS,
-	},
+//	{
+//		.call = list_neighbors_header_response,
+//		.nl = RPL_LIST_NEIGHBORS,
+//	},
 	{
 		.call = list_node_response,
 		.nl = RPL_LIST_NEIGHBORS,
