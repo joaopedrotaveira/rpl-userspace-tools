@@ -306,6 +306,49 @@ static struct rpl_ctl_cmd_event del_dag_response_event[] = {
 	{},
 };
 
+/*
+ * IFACE OPs
+ */
+
+static rpl_ctl_res_t list_iface_parse(struct rpl_ctl_cmd *cmd)
+{
+
+	//TODO ....
+	return RPL_CTL_CONT_OK;
+}
+
+static rpl_ctl_res_t list_iface_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
+{
+	//TODO ....
+
+
+	return RPL_CTL_CONT_OK;
+
+nla_put_failure:
+	return RPL_CTL_STOP_ERR;
+}
+
+static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+{
+	//TODO ....
+
+	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
+}
+
+static rpl_ctl_res_t list_iface_finish(struct rpl_ctl_cmd *cmd)
+{
+	//TODO ....
+	return RPL_CTL_STOP_OK;
+}
+
+static struct rpl_ctl_cmd_event list_iface_response_event[] = {
+	{
+		.call = list_iface_response,
+		.nl = RPL_LIST_IFACE,
+	},
+	{},
+};
+
 const struct rpl_ctl_module rpl_ctl_dag_conf = {
 	.name = "DAGs Configuration",
 	.commands = {
@@ -336,6 +379,34 @@ const struct rpl_ctl_module rpl_ctl_dag_conf = {
 		.parse		= del_dag_parse,
 		.request	= del_dag_request,
 		.response	= del_dag_response_event,
+	},
+	{
+		.name		= "listif",
+		.usage		= "",
+		.doc		= "List RPL enabled/disabled network interface.",
+		.nl_cmd		= RPL_LIST_IFACE,
+		.parse		= list_iface_parse,
+		.request	= list_iface_request,
+		.response	= list_iface_response_event,
+		.finish		= list_iface_finish,
+	},
+	{
+		.name		= "enable",
+		.usage		= "[iface]",
+		.doc		= "Enable RPL on network interface.",
+		.nl_cmd		= RPL_ENABLE_IFACE,
+//		.parse		= enable_iface_parse,
+//		.request	= enable_iface_request,
+//		.response	= enable_iface_response_event,
+	},
+	{
+		.name		= "disable",
+		.usage		= "[iface]",
+		.doc		= "Disable RPL on network interface.",
+		.nl_cmd		= RPL_DISABLE_IFACE,
+//		.parse		= disable_iface_parse,
+//		.request	= disable_iface_request,
+//		.response	= disable_iface_response_event,
 	},
 	{}}
 };
