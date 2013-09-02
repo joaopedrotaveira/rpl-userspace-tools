@@ -50,6 +50,8 @@ enum {
 	RPL_ATTR_DEF_LIFETIME,
 	RPL_ATTR_LIFETIME_UNIT,
 
+	RPL_ATTR_NODE_ADDR,
+
 	__RPL_ATTR_MAX,
 };
 
@@ -76,7 +78,6 @@ enum {
 	/* Information */
 	RPL_LIST_PARENT,
 	RPL_LIST_NEIGHBORS,
-	RPL_UPWARD_ROUTES,
 	RPL_DOWNWARD_ROUTES,
 
 	/* Configuration */

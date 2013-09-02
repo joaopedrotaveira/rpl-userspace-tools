@@ -55,16 +55,16 @@ static rpl_ctl_res_t list_dag_parse(struct rpl_ctl_cmd *cmd)
 
 static rpl_ctl_res_t list_dag_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
-	/* List single interface */
+	struct in6_addr dodagid;
 
 	//FIXME ADD INSTANCE ID TO REQUEST
-
-	//FIXME ADD AN IN6_ADDR to dodagid. use inet_pton if required
-
 	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
 
-	if (cmd->dodagid)
-		NLA_PUT_STRING(msg, RPL_ATTR_DODAG_ID, cmd->dodagid);
+	/* List single interface */
+	if (cmd->dodagid){
+		inet_pton(AF_INET6,cmd->dodagid,&dodagid);
+		NLA_PUT(msg, RPL_ATTR_DODAG_ID, sizeof(struct in6_addr), &dodagid);
+	}
 
 	return RPL_CTL_CONT_OK;
 
