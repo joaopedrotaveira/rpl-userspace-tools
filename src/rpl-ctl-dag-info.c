@@ -81,6 +81,8 @@ nla_put_failure:
 static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
 	uint8_t instance_id;
+	uint8_t is_dodag_parent;
+	uint8_t is_dao_parent;
 	struct in6_addr *dodagid;
 	char dodagid_str[INET6_ADDRSTRLEN+1];
 
@@ -91,13 +93,13 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	uint8_t dtsn;
 	uint16_t rank;
 
-	printf("Msg: %d\n", cmd->desc->nl_cmd);
-
 	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
 	    !attrs[RPL_ATTR_DODAG_ID] ||
 	    !attrs[RPL_ATTR_NODE_ADDR] ||
 	    !attrs[RPL_ATTR_DEV_NAME] ||
+	    !attrs[RPL_ATTR_IS_DODAG_PARENT] ||
+	    !attrs[RPL_ATTR_IS_DAO_PARENT] ||
 	    !attrs[RPL_ATTR_DTSN] ||
 		!attrs[RPL_ATTR_RANK]){
 		printf("UPS\n");
@@ -116,14 +118,18 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	dtsn = nla_get_u8(attrs[RPL_ATTR_DTSN]);
 	rank = nla_get_u16(attrs[RPL_ATTR_RANK]);
 
+	is_dodag_parent = nla_get_u16(attrs[RPL_ATTR_IS_DODAG_PARENT]);
+	is_dao_parent = nla_get_u16(attrs[RPL_ATTR_IS_DAO_PARENT]);
+
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
 	/* Display information about interface */
-	printf("Node: %s@%s\n", dodagid_str,dev_name);
+	printf("%s: %s@%s\n",(is_dodag_parent)?"Parent":"Neighbor",node_addr_str,dev_name);
 	printf("InstanceID: %d\n", instance_id);
 	printf("DodagID: %s\n",dodagid_str);
 	printf("Rank: %d\n", rank);
 	printf("DTSN: %d\n", dtsn);
+	printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
 	printf("\n");
 
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
@@ -135,10 +141,6 @@ static rpl_ctl_res_t list_node_finish(struct rpl_ctl_cmd *cmd)
 }
 
 static struct rpl_ctl_cmd_event list_parent_response_event[] = {
-//	{
-//		.call = list_parent_header_response,
-//		.nl = RPL_LIST_PARENT,
-//	},
 	{
 		.call = list_node_response,
 		.nl = RPL_LIST_PARENT,
@@ -147,10 +149,6 @@ static struct rpl_ctl_cmd_event list_parent_response_event[] = {
 };
 
 static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
-//	{
-//		.call = list_neighbors_header_response,
-//		.nl = RPL_LIST_NEIGHBORS,
-//	},
 	{
 		.call = list_node_response,
 		.nl = RPL_LIST_NEIGHBORS,
