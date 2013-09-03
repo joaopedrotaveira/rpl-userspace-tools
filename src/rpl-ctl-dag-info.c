@@ -25,6 +25,10 @@
 
 #include "rpl-ctl.h"
 
+/*
+ * Nodes List OPs
+ */
+
 static rpl_ctl_res_t list_node_parse(struct rpl_ctl_cmd *cmd)
 {
 	if (cmd->argc > 3) {
@@ -140,6 +144,117 @@ static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
 	{},
 };
 
+/*
+ * List Downward routes
+ */
+
+static rpl_ctl_res_t list_downward_routes_parse(struct rpl_ctl_cmd *cmd)
+{
+	if (cmd->argc > 3) {
+		printf("Incorrect number of arguments!\n");
+		return RPL_CTL_STOP_ERR;
+	}
+
+	/* rpl_ctl list 2001:0b18:2000:8221::1 */
+	if (cmd->argc == 3) {
+		cmd->dodagid = cmd->argv[1];
+	} else {
+		/* rpl_ctl list */
+		cmd->dodagid = NULL;
+	}
+	cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
+
+	return RPL_CTL_CONT_OK;
+}
+
+static rpl_ctl_res_t list_downward_routes_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
+{
+	struct in6_addr dodagid;
+
+	//FIXME ADD INSTANCE ID TO REQUEST
+	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
+
+	/* List single DAG */
+	if (cmd->dodagid){
+		inet_pton(AF_INET6,cmd->dodagid,&dodagid);
+		NLA_PUT(msg, RPL_ATTR_DODAG_ID, sizeof(struct in6_addr), &dodagid);
+	}
+
+	return RPL_CTL_CONT_OK;
+
+nla_put_failure:
+	return RPL_CTL_STOP_ERR;
+}
+
+static rpl_ctl_res_t list_downward_routes_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+{
+	uint8_t instance_id;
+	struct in6_addr *dodagid;
+	char dodagid_str[INET6_ADDRSTRLEN+1];
+
+	struct in6_addr *prefix;
+	char prefix_str[INET6_ADDRSTRLEN+1];
+	uint8_t prefix_len;
+
+	struct in6_addr *next_hop;
+	char next_hop_str[INET6_ADDRSTRLEN+1];
+
+	uint8_t one_hop;
+	char *dev_name;
+
+	/* Check for mandatory attributes */
+	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
+	    !attrs[RPL_ATTR_DODAG_ID] ||
+		!attrs[RPL_ATTR_PREFIX] ||
+		!attrs[RPL_ATTR_PREFIX_LEN] ||
+		!attrs[RPL_ATTR_NEXT_HOP] ||
+	    !attrs[RPL_ATTR_DEV_NAME] ||
+		!attrs[RPL_ATTR_ONE_HOP]){
+		return RPL_CTL_STOP_ERR;
+	}
+
+	/* Get attribute values from the message */
+	instance_id = nla_get_u8(attrs[RPL_ATTR_INSTANCE_ID]);
+
+	dodagid = nla_data(attrs[RPL_ATTR_DODAG_ID]);
+	inet_ntop(AF_INET6,dodagid,dodagid_str,INET6_ADDRSTRLEN);
+
+	prefix = nla_data(attrs[RPL_ATTR_PREFIX]);
+	inet_ntop(AF_INET6,prefix,prefix_str,INET6_ADDRSTRLEN);
+
+	prefix_len = nla_get_u8(attrs[RPL_ATTR_PREFIX_LEN]);
+
+	next_hop = nla_data(attrs[RPL_ATTR_NEXT_HOP]);
+	inet_ntop(AF_INET6,next_hop,next_hop_str,INET6_ADDRSTRLEN);
+
+	one_hop = nla_get_u8(attrs[RPL_ATTR_ONE_HOP]);
+
+	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
+
+	/* Display information about interface */
+	printf("Target: %s/%d\n",prefix,prefix_len);
+	printf("InstanceID: %d\n", instance_id);
+	printf("DodagID: %s\n",dodagid_str);
+	printf("NextHop: %s@%s\n", next_hop_str, dev_name);
+	printf("OneHop: %s\n", (one_hop)?"Yes":"No");
+	printf("\n");
+
+	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
+}
+
+static rpl_ctl_res_t list_downward_routes_finish(struct rpl_ctl_cmd *cmd)
+{
+	return RPL_CTL_STOP_OK;
+}
+
+static struct rpl_ctl_cmd_event list_downward_routes_response_event[] = {
+	{
+		.call = list_downward_routes_response,
+		.nl = RPL_DOWNWARD_ROUTES,
+	},
+	{},
+};
+
 const struct rpl_ctl_module rpl_ctl_dag_info = {
 	.name = "DAG Info",
 	.commands = {
@@ -168,10 +283,10 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 				.usage		= "[dodagid]",
 				.doc		= "Show DAG Downward Routes.",
 				.nl_cmd		= RPL_DOWNWARD_ROUTES,
-//				.parse		= list_downward_routes_parse,
-//				.request	= list_downward_routes_request,
-//				.response	= list_downward_routes_response_event,
-//				.finish		= list_downward_routes_finish,
+				.parse		= list_downward_routes_parse,
+				.request	= list_downward_routes_request,
+				.response	= list_downward_routes_response_event,
+				.finish		= list_downward_routes_finish,
 			},
 	{}}
 };
