@@ -85,33 +85,6 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	uint8_t pcs;
 	uint8_t min_hop_rank_inc;
 
-
-	/* Check for mandatory attributes */
-//	if (!attrs[RPL_ATTR_INSTANCE_ID])
-//		printf("UPS 1\n");
-//	if (!attrs[RPL_ATTR_OCP])
-//		printf("UPS 2\n");
-//	if (!attrs[RPL_ATTR_DODAG_ID])
-//		printf("UPS 3\n");
-//	if (!attrs[RPL_ATTR_VERSION])
-//		printf("UPS 4\n");
-//	if (!attrs[RPL_ATTR_GROUNDED])
-//		printf("UPS 5\n");
-//	if (!attrs[RPL_ATTR_MOP])
-//		printf("UPS 6\n");
-//	if (!attrs[RPL_ATTR_DTSN])
-//		printf("UPS 7\n");
-//	if (!attrs[RPL_ATTR_RANK])
-//		printf("UPS 8\n");
-//	if (!attrs[RPL_ATTR_DAO_SEQUENCE])
-//		printf("UPS 9\n");
-//	if (!attrs[RPL_ATTR_PCS])
-//		printf("UPS 10\n");
-//	if (!attrs[RPL_ATTR_MIN_HOP_RANK_INCR])
-//		printf("UPS 11\n");
-//	if (!attrs[RPL_ATTR_IS_ROOT])
-//		printf("UPS 12\n");
-
 	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
 	    !attrs[RPL_ATTR_OCP] ||
@@ -125,7 +98,6 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 		!attrs[RPL_ATTR_PCS] ||
 		!attrs[RPL_ATTR_MIN_HOP_RANK_INCR] ||
 		!attrs[RPL_ATTR_IS_ROOT]){
-		printf("UPS\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
@@ -274,9 +246,16 @@ static rpl_ctl_res_t del_dag_parse(struct rpl_ctl_cmd *cmd)
 
 static rpl_ctl_res_t del_dag_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
+	struct in6_addr dodagid;
+
+	//FIXME ADD INSTANCE ID TO REQUEST
+	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
+
 	/* del single interface */
-	if (cmd->dodagid)
-		NLA_PUT_STRING(msg, RPL_ATTR_DODAG_ID, cmd->dodagid);
+	if (cmd->dodagid){
+		inet_pton(AF_INET6,cmd->dodagid,&dodagid);
+		NLA_PUT(msg, RPL_ATTR_DODAG_ID, sizeof(struct in6_addr), &dodagid);
+	}
 
 	return RPL_CTL_CONT_OK;
 
@@ -347,17 +326,24 @@ static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsg
 	int autogen;
 
 	/* Check for mandatory attributes */
-	if (!attrs[RPL_ATTR_DEV_NAME] ||
-	    !attrs[RPL_ATTR_DEV_ENABLED] ||
-	    !attrs[RPL_ATTR_DEV_AUTOGEN]){
+	if (!attrs[RPL_ATTR_DEV_NAME]){
 		return RPL_CTL_STOP_ERR;
 	}
 
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
-	enabled = nla_get_u8(attrs[RPL_ATTR_DEV_ENABLED]);
-	autogen = nla_get_u8(attrs[RPL_ATTR_DEV_AUTOGEN]);
 
-	printf("Device: %s Enabled: %s Autogen: %s\n", dev_name, (enabled)?"Yes":"No", (autogen)?"Yes":"No");
+	printf("Device: %s", dev_name);
+	if(!attrs[RPL_ATTR_DEV_ENABLED]){
+		enabled = nla_get_u8(attrs[RPL_ATTR_DEV_ENABLED]);
+		printf("Enabled: %s",(enabled)?"Yes":"No");
+
+	}
+	if(!attrs[RPL_ATTR_DEV_AUTOGEN]){
+		autogen = nla_get_u8(attrs[RPL_ATTR_DEV_AUTOGEN]);
+		printf("Autogen: %s",(autogen)?"Yes":"No");
+
+	}
+	printf("\n");
 
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
 }
@@ -371,6 +357,104 @@ static struct rpl_ctl_cmd_event list_iface_response_event[] = {
 	{
 		.call = list_iface_response,
 		.nl = RPL_LIST_IFACE,
+	},
+	{},
+};
+
+static rpl_ctl_res_t enable_iface_parse(struct rpl_ctl_cmd *cmd)
+{
+	if (cmd->argc < 2 || cmd->argc > 3) {
+		printf("Incorrect number of arguments!\n");
+		return RPL_CTL_STOP_ERR;
+	}
+
+	cmd->iface = cmd->argv[1];
+
+	return RPL_CTL_CONT_OK;
+}
+
+static rpl_ctl_res_t enable_iface_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
+{
+	/* monitor single interface */
+	if(cmd->iface)
+		NLA_PUT_STRING(msg, RPL_ATTR_DEV_NAME, cmd->iface);
+
+	return RPL_CTL_CONT_OK;
+
+nla_put_failure:
+	return RPL_CTL_STOP_ERR;
+
+}
+
+static rpl_ctl_res_t enable_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+{
+	if (!attrs[RPL_ATTR_DEV_NAME])
+		return RPL_CTL_STOP_ERR;
+
+	printf("Enabled RPL on interface %s\n",
+			nla_get_string(attrs[RPL_ATTR_DEV_NAME]));
+
+	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
+}
+
+static rpl_ctl_res_t enable_iface_finish(struct rpl_ctl_cmd *cmd)
+{
+	return RPL_CTL_STOP_OK;
+}
+
+static struct iz_cmd_event enable_iface_response_event[] = {
+	{
+		.call = enable_iface_response,
+		.nl = RPL_ENABLE_IFACE,
+	},
+	{},
+};
+
+static rpl_ctl_res_t disable_iface_parse(struct rpl_ctl_cmd *cmd)
+{
+	if (cmd->argc < 2 || cmd->argc > 3) {
+		printf("Incorrect number of arguments!\n");
+		return RPL_CTL_STOP_ERR;
+	}
+
+	cmd->iface = cmd->argv[1];
+
+	return RPL_CTL_CONT_OK;
+}
+
+static rpl_ctl_res_t disable_iface_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
+{
+	/* monitor single interface */
+	if(cmd->iface)
+		NLA_PUT_STRING(msg, RPL_ATTR_DEV_NAME, cmd->iface);
+
+	return RPL_CTL_CONT_OK;
+
+nla_put_failure:
+	return RPL_CTL_STOP_ERR;
+
+}
+
+static rpl_ctl_res_t disable_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
+{
+	if (!attrs[RPL_ATTR_DEV_NAME])
+		return RPL_CTL_STOP_ERR;
+
+	printf("Disabled RPL on interface %s\n",
+			nla_get_string(attrs[RPL_ATTR_DEV_NAME]));
+
+	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
+}
+
+static rpl_ctl_res_t disable_iface_finish(struct rpl_ctl_cmd *cmd)
+{
+	return RPL_CTL_STOP_OK;
+}
+
+static struct iz_cmd_event disable_iface_response_event[] = {
+	{
+		.call = disable_iface_response,
+		.nl = RPL_DISABLE_IFACE,
 	},
 	{},
 };
@@ -421,18 +505,20 @@ const struct rpl_ctl_module rpl_ctl_dag_conf = {
 		.usage		= "[iface]",
 		.doc		= "Enable RPL on network interface.",
 		.nl_cmd		= RPL_ENABLE_IFACE,
-//		.parse		= enable_iface_parse,
-//		.request	= enable_iface_request,
-//		.response	= enable_iface_response_event,
+		.parse		= enable_iface_parse,
+		.request	= enable_iface_request,
+		.response	= enable_iface_response_event,
+		.finish		= enable_iface_finish,
 	},
 	{
 		.name		= "disable",
 		.usage		= "[iface]",
 		.doc		= "Disable RPL on network interface.",
 		.nl_cmd		= RPL_DISABLE_IFACE,
-//		.parse		= disable_iface_parse,
-//		.request	= disable_iface_request,
-//		.response	= disable_iface_response_event,
+		.parse		= disable_iface_parse,
+		.request	= disable_iface_request,
+		.response	= disable_iface_response_event,
+		.finish		= disable_iface_finish,
 	},
 	{}}
 };
