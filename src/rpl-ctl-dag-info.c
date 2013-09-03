@@ -250,7 +250,7 @@ static rpl_ctl_res_t list_downward_routes_finish(struct rpl_ctl_cmd *cmd)
 static struct rpl_ctl_cmd_event list_downward_routes_response_event[] = {
 	{
 		.call = list_downward_routes_response,
-		.nl = RPL_DOWNWARD_ROUTES,
+		.nl = RPL_LIST_DOWNWARD_ROUTES,
 	},
 	{},
 };
@@ -282,7 +282,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 		.name		= "show-downward-routes",
 		.usage		= "[dodagid]",
 		.doc		= "Show DAG Downward Routes.",
-		.nl_cmd		= RPL_DOWNWARD_ROUTES,
+		.nl_cmd		= RPL_LIST_DOWNWARD_ROUTES,
 		.parse		= list_downward_routes_parse,
 		.request	= list_downward_routes_request,
 		.response	= list_downward_routes_response_event,

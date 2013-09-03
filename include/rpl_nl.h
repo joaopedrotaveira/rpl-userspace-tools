@@ -87,7 +87,7 @@ enum {
 	/* Information */
 	RPL_LIST_PARENTS,
 	RPL_LIST_NEIGHBORS,
-	RPL_DOWNWARD_ROUTES,
+	RPL_LIST_DOWNWARD_ROUTES,
 
 	/* Configuration */
 	RPL_LIST_DAG,
