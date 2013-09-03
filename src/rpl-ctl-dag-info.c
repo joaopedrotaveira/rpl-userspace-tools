@@ -36,11 +36,9 @@ static rpl_ctl_res_t list_node_parse(struct rpl_ctl_cmd *cmd)
 		return RPL_CTL_STOP_ERR;
 	}
 
-	/* rpl_ctl list 2001:0b18:2000:8221::1 */
 	if (cmd->argc == 3) {
 		cmd->dodagid = cmd->argv[1];
 	} else {
-		/* rpl_ctl list */
 		cmd->dodagid = NULL;
 	}
 	cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
@@ -155,7 +153,6 @@ static rpl_ctl_res_t list_downward_routes_parse(struct rpl_ctl_cmd *cmd)
 		return RPL_CTL_STOP_ERR;
 	}
 
-	/* rpl_ctl list 2001:0b18:2000:8221::1 */
 	if (cmd->argc == 3) {
 		cmd->dodagid = cmd->argv[1];
 	} else {

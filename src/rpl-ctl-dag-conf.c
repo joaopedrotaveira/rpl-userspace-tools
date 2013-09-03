@@ -57,7 +57,6 @@ static rpl_ctl_res_t list_dag_request(struct rpl_ctl_cmd *cmd, struct nl_msg *ms
 	//FIXME ADD INSTANCE ID TO REQUEST
 	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
 
-	/* List single interface */
 	if (cmd->dodagid){
 		inet_pton(AF_INET6,cmd->dodagid,&dodagid);
 		NLA_PUT(msg, RPL_ATTR_DODAG_ID, sizeof(struct in6_addr), &dodagid);
@@ -265,11 +264,16 @@ nla_put_failure:
 
 static rpl_ctl_res_t del_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
+	struct in6_addr *dodagid;
+	char dodagid_str[INET6_ADDRSTRLEN+1];
+
 	if (!attrs[RPL_ATTR_DODAG_ID])
 		return RPL_CTL_STOP_ERR;
 
-	printf("Removed DAG ('%s')\n",
-			nla_get_string(attrs[RPL_ATTR_DODAG_ID]));
+	dodagid = nla_data(attrs[RPL_ATTR_DODAG_ID]);
+	inet_ntop(AF_INET6,dodagid,dodagid_str,INET6_ADDRSTRLEN);
+
+	printf("Removed DAG ('%s')\n",dodagid_str);
 
 	return RPL_CTL_STOP_OK;
 }
@@ -298,7 +302,7 @@ static rpl_ctl_res_t list_iface_parse(struct rpl_ctl_cmd *cmd)
 		cmd->iface = cmd->argv[1];
 		cmd->flags = NLM_F_REQUEST;
 	} else {
-		/* rpl_ctl list */
+		/* rpl_ctl listif */
 		cmd->iface = NULL;
 		cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
 	}
