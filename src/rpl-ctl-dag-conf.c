@@ -402,7 +402,7 @@ static rpl_ctl_res_t enable_iface_finish(struct rpl_ctl_cmd *cmd)
 	return RPL_CTL_STOP_OK;
 }
 
-static struct iz_cmd_event enable_iface_response_event[] = {
+static struct rpl_ctl_cmd_event enable_iface_response_event[] = {
 	{
 		.call = enable_iface_response,
 		.nl = RPL_ENABLE_IFACE,
@@ -451,7 +451,7 @@ static rpl_ctl_res_t disable_iface_finish(struct rpl_ctl_cmd *cmd)
 	return RPL_CTL_STOP_OK;
 }
 
-static struct iz_cmd_event disable_iface_response_event[] = {
+static struct rpl_ctl_cmd_event disable_iface_response_event[] = {
 	{
 		.call = disable_iface_response,
 		.nl = RPL_DISABLE_IFACE,
