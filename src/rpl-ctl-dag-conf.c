@@ -339,12 +339,12 @@ static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsg
 	printf("Device: %s", dev_name);
 	if(attrs[RPL_ATTR_DEV_ENABLED]){
 		enabled = nla_get_u8(attrs[RPL_ATTR_DEV_ENABLED]);
-		printf("Enabled: %s",(enabled)?"Yes":"No");
+		printf(" Enabled: %s",(enabled)?"Yes":"No");
 
 	}
 	if(attrs[RPL_ATTR_DEV_AUTOGEN]){
 		autogen = nla_get_u8(attrs[RPL_ATTR_DEV_AUTOGEN]);
-		printf("Autogen: %s",(autogen)?"Yes":"No");
+		printf(" Autogen: %s",(autogen)?"Yes":"No");
 
 	}
 	printf("\n");
