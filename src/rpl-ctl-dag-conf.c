@@ -326,8 +326,8 @@ nla_put_failure:
 static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsghdr *ghdr, struct nlattr **attrs)
 {
 	char *dev_name;
-	int enabled;
-	int autogen;
+	int enabled = 0;
+	int autogen = 0;
 
 	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_DEV_NAME]){
@@ -337,12 +337,12 @@ static rpl_ctl_res_t list_iface_response(struct rpl_ctl_cmd *cmd, struct genlmsg
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
 	printf("Device: %s", dev_name);
-	if(!attrs[RPL_ATTR_DEV_ENABLED]){
+	if(attrs[RPL_ATTR_DEV_ENABLED]){
 		enabled = nla_get_u8(attrs[RPL_ATTR_DEV_ENABLED]);
 		printf("Enabled: %s",(enabled)?"Yes":"No");
 
 	}
-	if(!attrs[RPL_ATTR_DEV_AUTOGEN]){
+	if(attrs[RPL_ATTR_DEV_AUTOGEN]){
 		autogen = nla_get_u8(attrs[RPL_ATTR_DEV_AUTOGEN]);
 		printf("Autogen: %s",(autogen)?"Yes":"No");
 
