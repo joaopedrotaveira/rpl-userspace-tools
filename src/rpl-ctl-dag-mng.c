@@ -71,6 +71,8 @@ static rpl_ctl_res_t dag_global_repair_response(struct rpl_ctl_cmd *cmd, struct 
 	if (!attrs[RPL_ATTR_DODAG_ID])
 		return RPL_CTL_STOP_ERR;
 
+	//TODO get instanceID and new Version
+
 	dodagid = nla_data(attrs[RPL_ATTR_DODAG_ID]);
 	inet_ntop(AF_INET6,dodagid,dodagid_str,INET6_ADDRSTRLEN);
 
@@ -132,6 +134,8 @@ static rpl_ctl_res_t dag_local_repair_response(struct rpl_ctl_cmd *cmd, struct g
 
 	if (!attrs[RPL_ATTR_DODAG_ID])
 		return RPL_CTL_STOP_ERR;
+
+	//TODO get instanceID and new Version
 
 	dodagid = nla_data(attrs[RPL_ATTR_DODAG_ID]);
 	inet_ntop(AF_INET6,dodagid,dodagid_str,INET6_ADDRSTRLEN);
