@@ -53,6 +53,7 @@ struct nla_policy rpl_policy[RPL_ATTR_MAX + 1] = {
 	[RPL_ATTR_NODE_ADDR] = { .minlen = sizeof(struct in6_addr), .maxlen = sizeof(struct in6_addr), },
 	[RPL_ATTR_IS_DODAG_PARENT] = { .type = NLA_U8, },
 	[RPL_ATTR_IS_DAO_PARENT] = { .type = NLA_U8, },
+	[RPL_ATTR_IS_PREFERRED] = { .type = NLA_U8, },
 
 	[RPL_ATTR_PREFIX] = { .minlen = sizeof(struct in6_addr), .maxlen = sizeof(struct in6_addr), },
 	[RPL_ATTR_PREFIX_LEN] = { .type = NLA_U8, },

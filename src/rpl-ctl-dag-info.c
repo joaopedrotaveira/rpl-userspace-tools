@@ -70,6 +70,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	uint8_t instance_id;
 	uint8_t is_dodag_parent;
 	uint8_t is_dao_parent;
+	uint8_t is_preferred;
 	struct in6_addr *dodagid;
 	char dodagid_str[INET6_ADDRSTRLEN+1];
 
@@ -87,6 +88,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	    !attrs[RPL_ATTR_DEV_NAME] ||
 	    !attrs[RPL_ATTR_IS_DODAG_PARENT] ||
 	    !attrs[RPL_ATTR_IS_DAO_PARENT] ||
+	    !attrs[RPL_ATTR_IS_PREFERRED] ||
 	    !attrs[RPL_ATTR_DTSN] ||
 		!attrs[RPL_ATTR_RANK]){
 		return RPL_CTL_STOP_ERR;
@@ -106,6 +108,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 
 	is_dodag_parent = nla_get_u8(attrs[RPL_ATTR_IS_DODAG_PARENT]);
 	is_dao_parent = nla_get_u8(attrs[RPL_ATTR_IS_DAO_PARENT]);
+	is_preferred = nla_get_u8(attrs[RPL_ATTR_IS_PREFERRED]);
 
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
@@ -116,6 +119,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	printf("Rank: %d\n", rank);
 	printf("DTSN: %d\n", dtsn);
 	printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
+	printf("Preferred: %s\n", (is_dodag_parent && is_preferred)?"Yes":"No");
 	printf("\n");
 
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
