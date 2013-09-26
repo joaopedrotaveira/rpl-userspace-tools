@@ -113,7 +113,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
 	/* Display information about interface */
-	printf("%s: %s@%s\n",(is_dodag_parent)?"Parent":"Neighbor",node_addr_str,dev_name);
+	printf("%s: %s%%%s\n",(is_dodag_parent)?"Parent":"Neighbor",node_addr_str,dev_name);
 	printf("InstanceID: %d\n", instance_id);
 	printf("DodagID: %s\n",dodagid_str);
 	printf("Rank: %d\n", rank);
@@ -236,7 +236,7 @@ static rpl_ctl_res_t list_downward_routes_response(struct rpl_ctl_cmd *cmd, stru
 	printf("Target: %s/%d\n",prefix_str,prefix_len);
 	printf("InstanceID: %d\n", instance_id);
 	printf("DodagID: %s\n",dodagid_str);
-	printf("NextHop: %s@%s\n", next_hop_str, dev_name);
+	printf("NextHop: %s%%%s\n", next_hop_str, dev_name);
 	printf("OneHop: %s\n", (one_hop)?"Yes":"No");
 	printf("\n");
 
