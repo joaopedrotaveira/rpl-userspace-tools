@@ -47,7 +47,7 @@ static rpl_ctl_res_t dag_global_repair_parse(struct rpl_ctl_cmd *cmd)
 
 static rpl_ctl_res_t dag_global_repair_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
-	struct in6_addr *dodagid;
+	struct in6_addr dodagid;
 
 	//FIXME ADD INSTANCE ID TO REQUEST
 	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
@@ -111,7 +111,7 @@ static rpl_ctl_res_t dag_local_repair_parse(struct rpl_ctl_cmd *cmd)
 
 static rpl_ctl_res_t dag_local_repair_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
-	struct in6_addr *dodagid;
+	struct in6_addr dodagid;
 
 	//FIXME ADD INSTANCE ID TO REQUEST
 	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
@@ -175,7 +175,7 @@ static rpl_ctl_res_t dag_dao_update_parse(struct rpl_ctl_cmd *cmd)
 
 static rpl_ctl_res_t dag_dao_update_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
 {
-	struct in6_addr *dodagid;
+	struct in6_addr dodagid;
 
 	//FIXME ADD INSTANCE ID TO REQUEST
 	NLA_PUT_U8(msg,RPL_ATTR_INSTANCE_ID,0);
