@@ -31,12 +31,12 @@
 
 static rpl_ctl_res_t dag_global_repair_parse(struct rpl_ctl_cmd *cmd)
 {
-	if (cmd->argc > 3) {
+	if (cmd->argc > 2) {
 		printf("Incorrect number of arguments!\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
-	if (cmd->argc == 3) {
+	if (cmd->argc == 2) {
 		cmd->dodagid = cmd->argv[1];
 	} else {
 		cmd->dodagid = NULL;
@@ -95,12 +95,12 @@ static struct rpl_ctl_cmd_event dag_global_repair_response_event[] = {
 
 static rpl_ctl_res_t dag_local_repair_parse(struct rpl_ctl_cmd *cmd)
 {
-	if (cmd->argc > 3) {
+	if (cmd->argc > 2) {
 		printf("Incorrect number of arguments!\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
-	if (cmd->argc == 3) {
+	if (cmd->argc == 2) {
 		cmd->dodagid = cmd->argv[1];
 	} else {
 		cmd->dodagid = NULL;
@@ -159,12 +159,12 @@ static struct rpl_ctl_cmd_event dag_local_repair_response_event[] = {
 
 static rpl_ctl_res_t dag_dao_update_parse(struct rpl_ctl_cmd *cmd)
 {
-	if (cmd->argc > 3) {
+	if (cmd->argc > 2) {
 		printf("Incorrect number of arguments!\n");
 		return RPL_CTL_STOP_ERR;
 	}
 
-	if (cmd->argc == 3) {
+	if (cmd->argc == 2) {
 		cmd->dodagid = cmd->argv[1];
 	} else {
 		cmd->dodagid = NULL;
