@@ -105,13 +105,13 @@ int main(int argc, char **argv)
 	while (1) {
 #ifdef HAVE_GETOPT_LONG
 		int opt_idx = -1;
-		c = getopt_long(argc, argv, "d::vh", rpl_ctl_long_opts, &opt_idx);
+		c = getopt_long(argc, argv, "+d::vh", rpl_ctl_long_opts, &opt_idx);
 #else
-		c = getopt(argc, argv, "d::vh");
+		c = getopt(argc, argv, "+d::vh");
 #endif
 		if (c == -1)
 			break;
-
+		
 		switch(c) {
 		case 'd':
 			if (optarg) {
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
 	cmd.argc = argc - optind;
 	cmd.argv = argv + optind;
-
+	
 	/* Parse command */
 	cmd.desc = get_cmd(argv[optind]);
 	if (!cmd.desc) {
@@ -240,6 +240,10 @@ void rpl_ctl_help(const char *pname)
 	printf("  -d, --debug[=N]                print netlink messages and other debug information\n");
 	printf("  -v, --version                  print version\n");
 	printf("  -h, --help                     print help\n");
+
+	printf("\n");
+	printf("Command Options:\n");
+	printf("  -l                             list mode. one record per line\n");
 
 	/* Print short help for available commands */
 	for (i = 0; rpl_ctl_modules[i]; i++) {

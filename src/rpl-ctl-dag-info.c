@@ -20,6 +20,7 @@
 #include <netlink/genl/ctrl.h>
 
 #include <arpa/inet.h>
+#include <getopt.h>
 #include <rpl_nl.h>
 #include <libcommon.h>
 
@@ -32,9 +33,7 @@
 static rpl_ctl_res_t list_node_parse(struct rpl_ctl_cmd *cmd)
 {
 	int c;
-	int list_mode = 0;
-// new code
-	/* Parse options */
+	optind=0;
 	while (1) {
 		c = getopt(cmd->argc, cmd->argv, "l");
 		if (c == -1)
@@ -45,28 +44,18 @@ static rpl_ctl_res_t list_node_parse(struct rpl_ctl_cmd *cmd)
 			cmd->list_mode = 1;
 			break;
 		default:
-			// FIXME we shouldnt call rpl_ctl_help here
-			rpl_ctl_help(cmd->argv[0]);
 			return RPL_CTL_STOP_ERR;
 		}
 	}
-	if (optind >= cmd->argc) {
-		// FIXME we shouldnt call rpl_ctl_help here
-		rpl_ctl_help(cmd->argv[0]);
+	if (optind > cmd->argc) {
 		return RPL_CTL_STOP_ERR;
 	}
 
 	cmd->argc = cmd->argc - optind;
 	cmd->argv = cmd->argv + optind;
 
-// old code
-	if (cmd->argc > 3) {
-		printf("Incorrect number of arguments!\n");
-		return RPL_CTL_STOP_ERR;
-	}
-
-	if (cmd->argc == 3) {
-		cmd->dodagid = cmd->argv[1];
+	if (cmd->argc == 1) {
+		cmd->dodagid = cmd->argv[0];
 	} else {
 		cmd->dodagid = NULL;
 	}
@@ -141,16 +130,26 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
-	/* Display information about interface */
-	printf("%s: %s%%%s\n",(is_dodag_parent)?"Parent":"Neighbor",node_addr_str,dev_name);
-	printf("InstanceID: %d\n", instance_id);
-	printf("DodagID: %s\n",dodagid_str);
-	printf("Rank: %d\n", rank);
-	printf("DTSN: %d\n", dtsn);
-	printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
-	printf("Preferred: %s\n", (is_dodag_parent && is_preferred)?"Yes":"No");
-	printf("\n");
-
+	if(cmd->list_mode){
+		printf("%s\t%s%%%s\t%d\t%s\t%d\t%d\t%s\t%s\n",
+				(is_dodag_parent)?"parent":"neighbor",node_addr_str,dev_name,
+				instance_id,
+				dodagid_str,
+				rank,
+				dtsn,
+				(is_dao_parent)?"daoparent":"",
+				(is_dodag_parent && is_preferred)?"preferred":"");
+	} else {
+		/* Display information about interface */
+		printf("%s: %s%%%s\n",(is_dodag_parent)?"Parent":"Neighbor",node_addr_str,dev_name);
+		printf("InstanceID: %d\n", instance_id);
+		printf("DodagID: %s\n",dodagid_str);
+		printf("Rank: %d\n", rank);
+		printf("DTSN: %d\n", dtsn);
+		printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
+		printf("Preferred: %s\n", (is_dodag_parent && is_preferred)?"Yes":"No");
+		printf("\n");
+	}
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
 }
 
@@ -261,13 +260,22 @@ static rpl_ctl_res_t list_downward_routes_response(struct rpl_ctl_cmd *cmd, stru
 
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
-	/* Display information about interface */
-	printf("Target: %s/%d\n",prefix_str,prefix_len);
-	printf("InstanceID: %d\n", instance_id);
-	printf("DodagID: %s\n",dodagid_str);
-	printf("NextHop: %s%%%s\n", next_hop_str, dev_name);
-	printf("OneHop: %s\n", (one_hop)?"Yes":"No");
-	printf("\n");
+	if(cmd->list_mode){
+		printf("%s/%d\t%d\t%s\t%s%%%s\t%s\n",
+				prefix_str,prefix_len,
+				instance_id,
+				dodagid_str,
+				next_hop_str,dev_name,
+				(one_hop)?"onehop":"multihop");
+	} else {
+		/* Display information about interface */
+		printf("Target: %s/%d\n",prefix_str,prefix_len);
+		printf("InstanceID: %d\n", instance_id);
+		printf("DodagID: %s\n",dodagid_str);
+		printf("NextHop: %s%%%s\n", next_hop_str, dev_name);
+		printf("OneHop: %s\n", (one_hop)?"Yes":"No");
+		printf("\n");
+	}
 
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
 }
@@ -290,7 +298,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 	.commands = {
 	{
 		.name		= "list-parents",
-		.usage		= "[dodagid]",
+		.usage		= "[-l] [dodagid]",
 		.doc		= "List DAG Parents.",
 		.nl_cmd		= RPL_LIST_PARENTS,
 		.parse		= list_node_parse,
@@ -300,7 +308,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 	},
 	{
 		.name		= "list-neighbors",
-		.usage		= "[dodagid]",
+		.usage		= "[-l] [dodagid]",
 		.doc		= "List DAG Neighbors.",
 		.nl_cmd		= RPL_LIST_NEIGHBORS,
 		.parse		= list_node_parse,
@@ -310,7 +318,7 @@ const struct rpl_ctl_module rpl_ctl_dag_info = {
 	},
 	{
 		.name		= "show-downward-routes",
-		.usage		= "[dodagid]",
+		.usage		= "[-l] [dodagid]",
 		.doc		= "Show DAG Downward Routes.",
 		.nl_cmd		= RPL_LIST_DOWNWARD_ROUTES,
 		.parse		= list_downward_routes_parse,
