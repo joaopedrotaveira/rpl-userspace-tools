@@ -180,20 +180,51 @@ static struct rpl_ctl_cmd_event list_neighbors_response_event[] = {
 
 static rpl_ctl_res_t list_downward_routes_parse(struct rpl_ctl_cmd *cmd)
 {
-	if (cmd->argc > 3) {
-		printf("Incorrect number of arguments!\n");
+	int c;
+	optind=0;
+	while (1) {
+		c = getopt(cmd->argc, cmd->argv, "l");
+		if (c == -1)
+			break;
+
+		switch(c) {
+		case 'l':
+			cmd->list_mode = 1;
+			break;
+		default:
+			return RPL_CTL_STOP_ERR;
+		}
+	}
+	if (optind > cmd->argc) {
 		return RPL_CTL_STOP_ERR;
 	}
 
-	if (cmd->argc == 3) {
-		cmd->dodagid = cmd->argv[1];
+	cmd->argc = cmd->argc - optind;
+	cmd->argv = cmd->argv + optind;
+
+	if (cmd->argc == 1) {
+		cmd->dodagid = cmd->argv[0];
 	} else {
-		/* rpl_ctl list */
 		cmd->dodagid = NULL;
 	}
 	cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
 
 	return RPL_CTL_CONT_OK;
+
+//	if (cmd->argc > 3) {
+//		printf("Incorrect number of arguments!\n");
+//		return RPL_CTL_STOP_ERR;
+//	}
+//
+//	if (cmd->argc == 3) {
+//		cmd->dodagid = cmd->argv[1];
+//	} else {
+//		/* rpl_ctl list */
+//		cmd->dodagid = NULL;
+//	}
+//	cmd->flags = NLM_F_REQUEST | NLM_F_DUMP;
+//
+//	return RPL_CTL_CONT_OK;
 }
 
 static rpl_ctl_res_t list_downward_routes_request(struct rpl_ctl_cmd *cmd, struct nl_msg *msg)
