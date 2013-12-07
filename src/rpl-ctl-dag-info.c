@@ -31,6 +31,35 @@
 
 static rpl_ctl_res_t list_node_parse(struct rpl_ctl_cmd *cmd)
 {
+	int c;
+	int list_mode = 0;
+// new code
+	/* Parse options */
+	while (1) {
+		c = getopt(cmd->argc, cmd->argv, "l");
+		if (c == -1)
+			break;
+
+		switch(c) {
+		case 'l':
+			cmd->list_mode = 1;
+			break;
+		default:
+			// FIXME we shouldnt call rpl_ctl_help here
+			rpl_ctl_help(cmd->argv[0]);
+			return RPL_CTL_STOP_ERR;
+		}
+	}
+	if (optind >= cmd->argc) {
+		// FIXME we shouldnt call rpl_ctl_help here
+		rpl_ctl_help(cmd->argv[0]);
+		return RPL_CTL_STOP_ERR;
+	}
+
+	cmd->argc = cmd->argc - optind;
+	cmd->argv = cmd->argv + optind;
+
+// old code
 	if (cmd->argc > 3) {
 		printf("Incorrect number of arguments!\n");
 		return RPL_CTL_STOP_ERR;

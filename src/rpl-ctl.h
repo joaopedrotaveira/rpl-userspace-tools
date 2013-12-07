@@ -73,6 +73,7 @@ struct rpl_ctl_cmd {
 
 	/* Fields below are prepared by parse function */
 	int flags;	/* NL message flags */
+	int list_mode; /* present results, one per line */
 	char *iface;	/* Interface for a command */
 	char *dodagid;	/* dodagid for a command */
 

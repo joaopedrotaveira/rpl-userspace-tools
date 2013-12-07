@@ -101,7 +101,6 @@ int main(int argc, char **argv)
 	/* Currently processed command info */
 	struct rpl_ctl_cmd cmd;
 
-
 	/* Parse options */
 	while (1) {
 #ifdef HAVE_GETOPT_LONG
