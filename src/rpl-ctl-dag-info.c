@@ -99,6 +99,10 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	uint8_t dtsn;
 	uint16_t rank;
 
+	uint8_t *dag_mc;
+	int dag_mc_len;
+	int i;
+
 	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
 	    !attrs[RPL_ATTR_DODAG_ID] ||
@@ -148,6 +152,16 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 		printf("DTSN: %d\n", dtsn);
 		printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
 		printf("Preferred: %s\n", (is_dodag_parent && is_preferred)?"Yes":"No");
+
+		if(attrs[RPL_ATTR_DAG_MC_OBJECT]) {
+			dag_mc = nla_data(attrs[RPL_ATTR_DAG_MC_OBJECT]);
+			dag_mc_len = nla_len(attrs[RPL_ATTR_DAG_MC_OBJECT]);
+			printf("RPL DAG MC: len: %d\n", dag_mc_len);
+			for(i=0;i<dag_mc_len;i++)
+				printf("%02X ",dag_mc[i]);
+			printf("\n");
+		}
+
 		printf("\n");
 	}
 	return (cmd->flags & NLM_F_MULTI) ? RPL_CTL_CONT_OK : RPL_CTL_STOP_OK;
