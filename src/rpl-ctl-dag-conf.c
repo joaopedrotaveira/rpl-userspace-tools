@@ -84,6 +84,10 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	uint8_t pcs;
 	uint8_t min_hop_rank_inc;
 
+	uint8_t *dag_mc;
+	int dag_mc_len;
+	int i;
+
 	/* Check for mandatory attributes */
 	if (!attrs[RPL_ATTR_INSTANCE_ID] ||
 	    !attrs[RPL_ATTR_OCP] ||
@@ -140,6 +144,15 @@ static rpl_ctl_res_t list_dag_response(struct rpl_ctl_cmd *cmd, struct genlmsghd
 	printf("MinHopRankIncrease: %u\n", min_hop_rank_inc);
 	//printf("def_lifetime: %d\n", def_lifetime);
 	//printf("lifetime_unit: %u\n", lifetime_unit);
+
+	if(attrs[RPL_ATTR_DAG_MC_OBJECT]) {
+		dag_mc = nla_data(attrs[RPL_ATTR_DAG_MC_OBJECT]);
+		dag_mc_len = nla_len(attrs[RPL_ATTR_DAG_MC_OBJECT]);
+		printf("RPL DAG MC: len: %d\n", dag_mc_len);
+		for(i=0;i<dag_mc_len;i++)
+			printf("%02X ",dag_mc[i]);
+		printf("\n");
+	}
 
 	printf("\n");
 
