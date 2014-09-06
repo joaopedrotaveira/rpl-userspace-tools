@@ -98,6 +98,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	char *dev_name;
 	uint8_t dtsn;
 	uint16_t rank;
+	uint16_t link_metric;
 
 	uint8_t *dag_mc;
 	int dag_mc_len;
@@ -112,7 +113,8 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	    !attrs[RPL_ATTR_IS_DAO_PARENT] ||
 	    !attrs[RPL_ATTR_IS_PREFERRED] ||
 	    !attrs[RPL_ATTR_DTSN] ||
-		!attrs[RPL_ATTR_RANK]){
+		!attrs[RPL_ATTR_RANK] ||
+		!attrs[RPL_ATTR_LINK_METRIC]){
 		return RPL_CTL_STOP_ERR;
 	}
 
@@ -127,6 +129,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 
 	dtsn = nla_get_u8(attrs[RPL_ATTR_DTSN]);
 	rank = nla_get_u16(attrs[RPL_ATTR_RANK]);
+	link_metric = nla_get_u16(attrs[RPL_ATTR_LINK_METRIC]);
 
 	is_dodag_parent = nla_get_u8(attrs[RPL_ATTR_IS_DODAG_PARENT]);
 	is_dao_parent = nla_get_u8(attrs[RPL_ATTR_IS_DAO_PARENT]);
@@ -135,12 +138,13 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 	dev_name = nla_get_string(attrs[RPL_ATTR_DEV_NAME]);
 
 	if(cmd->list_mode){
-		printf("%s\t%s%%%s\t%d\t%s\t%d\t%d\t%s\t%s\n",
+		printf("%s\t%s%%%s\t%d\t%s\t%d\t%d\t%u\t%s\t%s\n",
 				(is_dodag_parent)?"parent":"neighbor",node_addr_str,dev_name,
 				instance_id,
 				dodagid_str,
 				rank,
 				dtsn,
+				link_metric,
 				(is_dao_parent)?"daoparent":"",
 				(is_dodag_parent && is_preferred)?"preferred":"");
 	} else {
@@ -152,6 +156,7 @@ static rpl_ctl_res_t list_node_response(struct rpl_ctl_cmd *cmd, struct genlmsgh
 		printf("DTSN: %d\n", dtsn);
 		printf("DAO Parent: %s\n", (is_dao_parent)?"Yes":"No");
 		printf("Preferred: %s\n", (is_dodag_parent && is_preferred)?"Yes":"No");
+		printf("Link Metric: %u\n", link_metric);
 
 		if(attrs[RPL_ATTR_DAG_MC_OBJECT]) {
 			dag_mc = nla_data(attrs[RPL_ATTR_DAG_MC_OBJECT]);
