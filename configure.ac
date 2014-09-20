@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.61)
 AC_INIT([Userspace tools for RPL],
-	[0.1],[joao.silva@inov.pt],
+	[0.1],[joao.p.taveira@gmail.com],
 	[rpl-tools], [http://github.com/joaopedrotaveira/rpl-userspace-tools])
 m4_ifndef([AC_PACKAGE_URL],
 	  [AC_SUBST([PACKAGE_URL], [http://github.com/joaopedrotaveira/rpl-userspace-tools])

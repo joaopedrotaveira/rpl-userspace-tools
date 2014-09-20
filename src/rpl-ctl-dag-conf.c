@@ -385,6 +385,11 @@ static rpl_ctl_res_t enable_iface_parse(struct rpl_ctl_cmd *cmd)
 		return RPL_CTL_STOP_ERR;
 	}
 
+	if(cmd->argc == 3 && strcmp(cmd->argv[2],"root")){
+		printf("Unknown argument: %s\n",cmd->argv[2]);
+		return RPL_CTL_STOP_ERR;
+	}
+
 	cmd->iface = cmd->argv[1];
 
 	return RPL_CTL_CONT_OK;
@@ -395,6 +400,9 @@ static rpl_ctl_res_t enable_iface_request(struct rpl_ctl_cmd *cmd, struct nl_msg
 	/* monitor single interface */
 	if(cmd->iface)
 		NLA_PUT_STRING(msg, RPL_ATTR_DEV_NAME, cmd->iface);
+
+	if(cmd->argc == 3 && !strcmp(cmd->argv[2],"root"))
+		NLA_PUT_U8(msg, RPL_ATTR_IS_ROOT, 1);
 
 	return RPL_CTL_CONT_OK;
 
@@ -519,7 +527,7 @@ const struct rpl_ctl_module rpl_ctl_dag_conf = {
 	},
 	{
 		.name		= "enable",
-		.usage		= "[iface]",
+		.usage		= "[iface [root]]",
 		.doc		= "Enable RPL on network interface.",
 		.nl_cmd		= RPL_ENABLE_IFACE,
 		.parse		= enable_iface_parse,
